@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAK Slots</title>
+    <meta name="description"
+        content="A fun and interactive slot machine game with a retro aesthetic. Spin the reels and win big!">
+    <link rel="icon" href="assets/favicon.avif" type="image/avif">
+    <link rel="preload" href="assets/images/cherries.png" as="image">
+    <link rel="preload" href="assets/images/lemon.png" as="image">
+    <link rel="preload" href="assets/images/grapes.png" as="image">
+    <link rel="preload" href="assets/images/watermelon.png" as="image">
+    <link rel="preload" href="assets/images/orange.png" as="image">
+    <link rel="preload" href="assets/images/diamond.png" as="image">
+    <link rel="preload" href="assets/images/bell.png" as="image">
+    <link rel="preload" href="assets/images/star.png" as="image">
+    <link rel="preload" href="assets/images/moneybag.png" as="image">
+    <link rel="preload" href="assets/images/seven.png" as="image">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+    <style>
+        /* --- Reset & Base --- */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            /* Base font size */
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100svh;
+            background-color: #1a1a1a;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(200, 200, 200, 0.1) 1px, transparent 0),
+                /* Subtle lighter dots */
+                radial-gradient(circle at 10px 10px, rgba(50, 50, 50, 0.5) 1px, transparent 0);
+            /* Darker dots */
+            background-size: 20px 20px;
+            font-family: 'Bangers', cursive;
+            overflow: hidden;
+            color: #eee;
+        }
+
+        /* --- Slot Machine Container --- */
+        #slot-machine {
+            width: 90%;
+            max-width: 750px;
+            min-width: 320px;
+            background: linear-gradient(145deg, #7d7d7d, #4a4a4a);
+            /* Enhanced metallic */
+            border: 12px solid #000;
+            /* Thicker outer border */
+            box-shadow:
+                inset 0 0 20px rgba(0, 0, 0, 0.8),
+                /* Deeper inner bevel */
+                0 0 0 6px #333,
+                /* Inner dark frame */
+                0 0 0 12px #000,
+                /* Outer black border reinforcement */
+                15px 15px 35px rgba(0, 0, 0, 0.9);
+            /* Heavier drop shadow */
+            padding: 20px;
+            position: relative;
+            border-radius: 8px;
+        }
+
+        .logo-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #ffd700 10%, #b8860b 50%, #ffd700 90%);
+            border-radius: 10px;
+            box-shadow:
+                0 6px 18px 0 rgba(255, 215, 0, 0.25),
+                0 0 24px 4px rgba(255, 215, 0, 0.18),
+                0 2px 8px 0 rgba(0,0,0,0.25);
+            padding: 18px 0 12px 0;
+            position: relative;
+        }
+
+        #game-logo {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.7));
+            animation: logo-glow 1.5s infinite alternate ease-in-out;
+        }
+
+        /* --- Header Bar --- */
+        #header-bar {
+            background: #111;
+            border: 4px solid #000;
+            box-shadow: inset 0 0 15px #000, 0 2px 3px rgba(0, 0, 0, 0.5);
+            padding: 8px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 3rem;
+            color: #0ff;
+            /* Neon Cyan */
+            text-shadow:
+                0 2px 4px #000,
+                0 0 12px #0ff,
+                0 0 24px #0ff,
+                0 0 36px #0ff,
+                0 0 48px #0ff,
+                0 0 64px #0ff;
+            /* Stronger black shadow for readability, much more glow */
+            position: relative;
+            border-radius: 10px;
+        }
+
+        #header-bar .colon {
+            animation: blink 1s step-start infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* --- Reels Grid --- */
+        #reels-container {
+            /* Added wrapper for particles/overlays */
+            position: relative;
+            background:
+                linear-gradient(135deg, #6804ff 0%, #e91e63 40%, #2bf4ff 100%),
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.12) 0 2px, transparent 2px 8px);
+            background-blend-mode: overlay;
+            border-radius: 10px;
+        }
+
+        #reels {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            padding: 0px 5px;
+            border: 6px solid #000;
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.9);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .reel {
+            width: calc(20% - 10px);
+            /* Adjusted width for 5 reels + gap */
+            height: 300px;
+            /* 3 symbols * 100px */
+            /* Very dark background */
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .reel-symbols {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            /* Transition set dynamically in JS for spin */
+        }
+
+        .symbol {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Thicker separator */
+            position: relative;
+        }
+
+        .symbol img {
+            display: block;
+            width: 85px;
+            /* Slightly smaller for padding */
+            height: 85px;
+            object-fit: contain;
+            /* Keep if desired, or auto for smoother */
+            filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.7));
+            /* Base shadow */
+            /* Slightly rounded */
+            color: black;
+            /* For text in SVG placeholders */
+        }
+
+        /* Winning Symbol Flash */
+        .symbol.winning {
+            /* Stronger Flash */
+            animation: win-flash 0.4s infinite alternate ease-in-out;
+            z-index: 2;
+            /* Ensure flash is visible */
+        }
+
+        @keyframes win-flash {
+            0% {
+                filter: brightness(1.8) drop-shadow(0 0 5px #ff0) drop-shadow(0 0 10px #ff0) saturate(2);
+                transform: scale(1.05);
+            }
+
+            100% {
+                filter: brightness(2.5) drop-shadow(0 0 10px #fc0) drop-shadow(0 0 20px #f80) saturate(3);
+                transform: scale(1.1);
+            }
+        }
+
+        /* --- Winning Line Highlight --- */
+        #win-line-overlays {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            /* Don't block interactions */
+            z-index: 10;
+            /* Above symbols */
+            overflow: hidden;
+            /* Clip lines to reels area */
+        }
+
+        .win-line {
+            position: absolute;
+            background: linear-gradient(to right, rgba(255, 220, 0, 0.8), rgba(255, 180, 0, 0.9), rgba(255, 220, 0, 0.8));
+            height: 10px;
+            /* Thickness of the line */
+            border-radius: 10px;
+            box-shadow: 0 0 5px 2px rgba(255, 255, 0, 0.7), 0 0 10px 4px rgba(255, 165, 0, 0.5);
+            opacity: 0;
+            /* Start transparent */
+            transform-origin: left center;
+            /* Rotate and scale from the start of the line */
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        /* --- Control Panel --- */
+        #controls {
+            display: flex;
+            justify-content: space-evenly;
+            /* Even distribution */
+            align-items: center;
+            flex-wrap: wrap;
+            /* Allow wrapping on smaller screens */
+            gap: 15px;
+            padding: 15px;
+            background: linear-gradient(145deg, #5a5a5a, #333);
+            /* Darker metal */
+            border: 4px solid #000;
+            box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.6), 0 2px 3px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+
+        #controls button {
+            font-family: 'Bangers', cursive;
+            font-size: 1.8rem;
+            /* Chunkier text */
+            padding: 12px 20px;
+            border: 4px solid #000;
+            /* Heavy border */
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.1s ease-out;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6),
+                /* Stronger drop shadow */
+                inset 0 0 0 rgba(0, 0, 0, 0.4);
+            /* Reset inset */
+            position: relative;
+            /* For potential ::before/::after styling */
+            overflow: hidden;
+            /* For potential shine effects */
+        }
+
+        #controls button:active:not(:disabled) {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7), inset 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        #controls button:disabled {
+            filter: grayscale(0.9) brightness(0.5) contrast(0.8);
+            cursor: not-allowed;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6);
+            /* Keep shadow */
+            transform: none;
+        }
+
+        #bet-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #bet-controls button {
+            /* +/- buttons */
+            background: linear-gradient(to bottom, #ffc800, #ffa000);
+            /* Yellow/Orange gradient */
+            color: #331a00;
+            font-size: 2rem;
+            padding: 8px 15px;
+        }
+
+        #bet-amount-display {
+            background: #111;
+            padding: 8px 18px;
+            font-size: 1.8rem;
+            color: #ffc800;
+            /* Match button yellow */
+            border: 3px solid #000;
+            border-radius: 4px;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: inset 1px 1px 4px rgba(0, 0, 0, 0.7);
+            text-shadow: 0 0 3px #ffc800;
+        }
+
+        #spin-button {
+            background: linear-gradient(to bottom, #ff4d4d, #cc0000);
+            /* Red gradient */
+            color: #fff;
+            font-size: 2.5rem;
+            /* Biggest button */
+            padding: 15px 35px;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6),
+                inset 0 0 10px rgba(255, 255, 100, 0.4),
+                /* Base inner glow */
+                0 0 0 #000;
+            /* Overwrite default */
+            animation: spin-glow 1.8s infinite alternate ease-in-out;
+        }
+
+        @keyframes spin-glow {
+            from {
+                box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(255, 255, 120, 0.5), 0 0 5px rgba(255, 100, 100, 0.5);
+            }
+
+            to {
+                box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6), inset 0 0 25px rgba(255, 255, 180, 0.8), 0 0 15px rgba(255, 0, 0, 0.7);
+            }
+        }
+
+        #max-bet-button {
+            background: repeating-linear-gradient(
+                    /* Hazard Stripes */
+                    -45deg,
+                    #ffeb3b, #ffeb3b 15px,
+                    #1a1a1a 15px, #1a1a1a 30px);
+            color: #fff;
+            font-size: 1.4rem;
+            padding: 10px 15px;
+            border-color: #ffeb3b;
+            text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+            /* Ensure readability */
+        }
+
+        #mute-button {
+            background: linear-gradient(to bottom, #444, #222);
+            color: #ffc800;
+            font-size: 1.8rem;
+            padding: 12px 20px;
+            border: 4px solid #000;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.1s ease-out;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6),
+                inset 0 0 0 rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #mute-button:active:not(:disabled) {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7), inset 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        #mute-button:disabled {
+            filter: grayscale(0.9) brightness(0.5) contrast(0.8);
+            cursor: not-allowed;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6);
+            transform: none;
+        }
+
+        /* --- Footer Notification --- */
+        #notification-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            border: 5px solid #ffae00;
+            /* Thicker border */
+            border-image: linear-gradient(to bottom right, #ffae00, #ff5e00) 1;
+            /* Gradient border */
+            border-radius: 8px;
+            padding: 15px 30px;
+            font-size: 3.5rem;
+            /* Larger win text */
+            color: #ffcc00;
+            text-shadow: 0 0 5px #ffae00, 0 0 10px #ffae00, 0 0 15px #ff0000;
+            /* More intense shadow */
+            opacity: 0;
+            transition: opacity 0.3s ease, bottom 0.6s cubic-bezier(0.17, 0.67, 0.3, 1.3);
+            /* Bouncier pop */
+            z-index: 20;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(255, 174, 0, 0.4);
+        }
+
+        #notification-area.show {
+            opacity: 1;
+        }
+
+        @keyframes burst-anim {
+            0% {
+                transform: translate(-50%, -50%) scale(0) rotate(0deg);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.8) rotate(15deg);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.5) rotate(-5deg);
+                opacity: 0;
+            }
+        }
+
+        /* --- Particle Effect --- */
+        #particle-container {
+            position: absolute;
+            top: 50%;
+            /* Center over reels */
+            left: 50%;
+            width: 1px;
+            height: 1px;
+            /* Point source */
+            pointer-events: none;
+            z-index: 15;
+            /* Below notifications, above reels border */
+        }
+
+        .particle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: gold;
+            border-radius: 50%;
+            box-shadow: 0 0 5px yellow;
+            opacity: 0;
+            /* Start invisible */
+            /* Animation set by JS */
+        }
+
+        .particle.shard {
+            /* Mix in some shards */
+            width: 8px;
+            height: 16px;
+            border-radius: 2px;
+            background: orangered;
+            box-shadow: 0 0 5px red;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 800px) {
+
+            /* Adjust breakpoint */
+            html {
+                font-size: 14px;
+            }
+
+            #slot-machine {
+                padding: 15px;
+                border-width: 8px;
+            }
+
+            #header-bar {
+                font-size: 2.5rem;
+                padding: 6px 15px;
+            }
+
+            #reels {
+                margin-bottom: 20px;
+                gap: 8px;
+            }
+
+            .reel {
+                width: calc(20% - 8px);
+                height: 240px;
+            }
+
+            /* 3 * 80px */
+            .symbol {
+                height: 80px;
+            }
+
+            .symbol img {
+                width: 68px;
+                height: 68px;
+            }
+
+            #controls {
+                gap: 12px;
+                padding: 12px;
+            }
+
+            #controls button {
+                font-size: 1.5rem;
+                padding: 10px 15px;
+            }
+
+            #spin-button {
+                font-size: 2rem;
+                padding: 12px 25px;
+            }
+
+            #max-bet-button {
+                font-size: 1.2rem;
+                padding: 8px 12px;
+            }
+
+            #bet-amount-display {
+                font-size: 1.5rem;
+                padding: 6px 15px;
+                min-width: 100px;
+            }
+
+            #notification-area {
+                font-size: 3rem;
+                padding: 12px 25px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            html {
+                font-size: 12px;
+            }
+
+            #slot-machine {
+                padding: 10px;
+                border-width: 6px;
+            }
+
+            #header-bar {
+                font-size: 2rem;
+                padding: 5px 10px;
+            }
+
+            #reels {
+                margin-bottom: 15px;
+                gap: 5px;
+            }
+
+            .reel {
+                width: calc(20% - 5px);
+                height: 180px;
+            }
+
+            /* 3 * 60px */
+            .symbol {
+                height: 60px;
+            }
+
+            .symbol img {
+                width: 50px;
+                height: 50px;
+                border-width: 3px;
+            }
+
+            #controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            /* Stack controls */
+            #controls button {
+                width: 80%;
+                max-width: 280px;
+                font-size: 1.4rem;
+                padding: 10px;
+            }
+
+            #spin-button {
+                font-size: 1.8rem;
+                padding: 12px;
+            }
+
+            #max-bet-button {
+                font-size: 1.1rem;
+                padding: 8px;
+            }
+
+            #bet-controls {
+                width: 100%;
+                justify-content: center;
+            }
+
+            #notification-area {
+                font-size: 2.5rem;
+                padding: 10px 20px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            html {
+                font-size: 11px;
+            }
+
+            #header-bar {
+                font-size: 1.8rem;
+            }
+
+            .reel {
+                height: 150px;
+            }
+
+            /* 3 * 50px */
+            .symbol {
+                height: 50px;
+            }
+
+            .symbol img {
+                width: 42px;
+                height: 42px;
+            }
+
+            #controls button {
+                font-size: 1.3rem;
+            }
+
+            #spin-button {
+                font-size: 1.6rem;
+            }
+
+            #notification-area {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="slot-machine">
+        <div class="logo-bar">
+            <img id="game-logo" src="assets/logo.avif" alt="HAK Slots Logo">
+        </div>
+        <div id="header-bar">BALANCE<span class="colon">:</span> <span id="balance">1000€</span></div>
+
+        <div id="reels-container">
+            <div id="reels">
+                <div class="reel" id="reel-0">
+                    <div class="reel-symbols"></div>
+                </div>
+                <div class="reel" id="reel-1">
+                    <div class="reel-symbols"></div>
+                </div>
+                <div class="reel" id="reel-2">
+                    <div class="reel-symbols"></div>
+                </div>
+                <div class="reel" id="reel-3">
+                    <div class="reel-symbols"></div>
+                </div>
+                <div class="reel" id="reel-4">
+                    <div class="reel-symbols"></div>
+                </div>
+            </div>
+            <div id="win-line-overlays"></div>
+            <div id="particle-container"></div>
+        </div>
+
+        <div id="controls">
+            <div id="bet-controls">
+                <button id="bet-down">-</button>
+                <span id="bet-amount-display">BET: <span id="bet-amount">10</span></span>
+                <button id="bet-up">+</button>
+            </div>
+            <button id="spin-button">SPIN</button>
+            <button id="max-bet-button">MAX BET</button>
+            <button id="mute-button">🔊</button>
+        </div>
+
+        <div id="notification-area">
+            <span id="win-amount"></span>
+        </div>
+    </div>
+
+    <audio id="bg-music" src="assets/sounds/bg-music.mp3" preload="auto"></audio>
+    <audio id="sfx-spin-start" src="assets/sounds/spin-start.mp3" preload="auto"></audio>
+    <audio id="sfx-reel-stop" src="assets/sounds/spin-start.mp3" preload="auto"></audio>
+    <audio id="sfx-win-small" src="assets/sounds/win-small.mp3" preload="auto"></audio>
+    <audio id="sfx-win-big" src="assets/sounds/win-big.mp3" preload="auto"></audio>
+    <audio id="sfx-button-click" src="assets/sounds/button-click.mp3" preload="auto"></audio>
+
+    <script>
+        const muteButton = document.getElementById('mute-button');
+        const bgMusic = document.getElementById('bg-music');
+
+        const muted = localStorage.getItem('hak_slots_muted') === 'true';
+        if (muted) {
+            bgMusic.muted = true;
+            muteButton.textContent = '🔇';
+        } else {
+            bgMusic.muted = false;
+            muteButton.textContent = '🔊';
+        }
+
+        muteButton.addEventListener('click', function () {
+            bgMusic.muted = !bgMusic.muted;
+            localStorage.setItem('hak_slots_muted', bgMusic.muted);
+            muteButton.textContent = bgMusic.muted ? '🔇' : '🔊';
+        });
+
+        document.addEventListener('click', function () {
+            if (bgMusic && !bgMusic.muted && bgMusic.paused) {
+                bgMusic.currentTime = 0;
+                bgMusic.loop = true;
+                bgMusic.volume = 0.75;
+                bgMusic.play().catch(e => console.warn("Audio play failed:", e));
+            } else if (!bgMusic) {
+                console.warn("Background music element not found.");
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURATION --- 
+            const SYMBOLS = ["cherry", "lemon", "grapes", "watermelon", "orange", "diamond", "bell", "star", "moneybag", "seven"]; // Replaced skull with seven
+            const REEL_COUNT = 5;
+            const SYMBOLS_PER_REEL = 3; // Visible symbols
+            const SPIN_DURATION = 1000; // ms base duration
+            const SPIN_DELAY_PER_REEL = 150; // Slightly faster stagger
+            const SYMBOL_BUFFER_COUNT = 30; // Number of random symbols above final ones for spin effect
+            const PARTICLE_COUNT = 30; // For win effect
+
+            const symbolImages = {
+                cherry: 'assets/images/cherries.png',
+                lemon: 'assets/images/lemon.png',
+                grapes: 'assets/images/grapes.png',
+                watermelon: 'assets/images/watermelon.png',
+                orange: 'assets/images/orange.png',
+                diamond: 'assets/images/diamond.png',
+                bell: 'assets/images/bell.png',
+                star: 'assets/images/star.png',
+                moneybag: 'assets/images/moneybag.png',
+                seven: 'assets/images/seven.png',
+            };
+
+            const PAYOUT_TABLE = {
+                cherry: { 3: 2, 4: 5, 5: 10 },   // Small wins
+                lemon: { 3: 2, 4: 5, 5: 10 },
+                grapes: { 3: 3, 4: 8, 5: 15 },
+                watermelon: { 3: 3, 4: 8, 5: 15 },
+                orange: { 3: 4, 4: 10, 5: 20 },
+                bell: { 3: 8, 4: 20, 5: 50 },
+                star: { 3: 10, 4: 25, 5: 60 },
+                moneybag: { 3: 15, 4: 40, 5: 100 },
+                seven: { 3: 25, 4: 75, 5: 200 },  // High but not extreme
+                diamond: { 3: 50, 4: 150, 5: 500 }   // Jackpot, but not excessive
+            };
+
+            // Generate all possible winning lines for 5x3 grid (3, 4, 5 in a row/col/diag)
+            // Grid indices: 0  3  6  9  12
+            //              1  4  7 10  13
+            //              2  5  8 11  14
+
+            function generateWinningLines() {
+                const lines = [];
+                const rows = 3, cols = 5;
+
+                // Helper to get grid index
+                const idx = (col, row) => col * rows + row;
+
+                // Horizontal (rows): 3, 4, 5 in a row
+                for (let row = 0; row < rows; row++) {
+                    for (let startCol = 0; startCol <= cols - 3; startCol++) {
+                        // 3 in a row
+                        lines.push({
+                            name: `Row ${row + 1} - ${startCol + 1}-${startCol + 3}`,
+                            indices: [idx(startCol, row), idx(startCol + 1, row), idx(startCol + 2, row)]
+                        });
+                        // 4 in a row
+                        if (startCol <= cols - 4) {
+                            lines.push({
+                                name: `Row ${row + 1} - ${startCol + 1}-${startCol + 4}`,
+                                indices: [idx(startCol, row), idx(startCol + 1, row), idx(startCol + 2, row), idx(startCol + 3, row)]
+                            });
+                        }
+                        // 5 in a row
+                        if (startCol === 0) {
+                            lines.push({
+                                name: `Row ${row + 1} - 1-5`,
+                                indices: [idx(0, row), idx(1, row), idx(2, row), idx(3, row), idx(4, row)]
+                            });
+                        }
+                    }
+                }
+
+                // Vertical (columns): 3 in a column
+                for (let col = 0; col < cols; col++) {
+                    lines.push({
+                        name: `Column ${col + 1}`,
+                        indices: [idx(col, 0), idx(col, 1), idx(col, 2)]
+                    });
+                }
+
+                // Diagonals: all possible 3, 4, 5 in a diagonal (down-right and up-right)
+                // Down-right (\)
+                for (let startCol = 0; startCol <= cols - 3; startCol++) {
+                    for (let startRow = 0; startRow <= rows - 3; startRow++) {
+                        // 3-diagonal
+                        lines.push({
+                            name: `Diag \\ (${startCol + 1},${startRow + 1}) len3`,
+                            indices: [
+                                idx(startCol, startRow),
+                                idx(startCol + 1, startRow + 1),
+                                idx(startCol + 2, startRow + 2)
+                            ]
+                        });
+                        // 4-diagonal
+                        if (startCol <= cols - 4 && startRow <= rows - 3) {
+                            lines.push({
+                                name: `Diag \\ (${startCol + 1},${startRow + 1}) len4`,
+                                indices: [
+                                    idx(startCol, startRow),
+                                    idx(startCol + 1, startRow + 1),
+                                    idx(startCol + 2, startRow + 2),
+                                    idx(startCol + 3, startRow + 3)
+                                ]
+                            });
+                        }
+                        // 5-diagonal
+                        if (startCol === 0 && startRow === 0) {
+                            lines.push({
+                                name: `Diag \\ full`,
+                                indices: [
+                                    idx(0, 0),
+                                    idx(1, 1),
+                                    idx(2, 2),
+                                    idx(3, 0 + 3),
+                                    idx(4, 0 + 4)
+                                ].filter(i => i < 15) // Only valid indices
+                            });
+                        }
+                    }
+                }
+                // Up-right (/)
+                for (let startCol = 0; startCol <= cols - 3; startCol++) {
+                    for (let startRow = 2; startRow >= 2 - (rows - 3); startRow--) {
+                        // 3-diagonal
+                        if (startRow - 2 >= 0) {
+                            lines.push({
+                                name: `Diag / (${startCol + 1},${startRow + 1}) len3`,
+                                indices: [
+                                    idx(startCol, startRow),
+                                    idx(startCol + 1, startRow - 1),
+                                    idx(startCol + 2, startRow - 2)
+                                ]
+                            });
+                        }
+                        // 4-diagonal
+                        if (startCol <= cols - 4 && startRow - 3 >= 0) {
+                            lines.push({
+                                name: `Diag / (${startCol + 1},${startRow + 1}) len4`,
+                                indices: [
+                                    idx(startCol, startRow),
+                                    idx(startCol + 1, startRow - 1),
+                                    idx(startCol + 2, startRow - 2),
+                                    idx(startCol + 3, startRow - 3)
+                                ]
+                            });
+                        }
+                        // 5-diagonal
+                        if (startCol === 0 && startRow === 2) {
+                            lines.push({
+                                name: `Diag / full`,
+                                indices: [
+                                    idx(0, 2),
+                                    idx(1, 1),
+                                    idx(2, 0),
+                                    idx(3, -1),
+                                    idx(4, -2)
+                                ].filter(i => i >= 0 && i < 15)
+                            });
+                        }
+                    }
+                }
+
+                // Remove duplicate lines (by indices)
+                const unique = [];
+                const seen = new Set();
+                for (const line of lines) {
+                    const key = line.indices.join(',');
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        unique.push(line);
+                    }
+                }
+                return unique;
+            }
+
+            const WINNING_LINES = generateWinningLines();
+
+            // --- STATE ---
+            let balance = 1000;
+            let bet = 10;
+            let isSpinning = false;
+            let reels = []; // Holds DOM elements for each reel's symbol container
+            let finalSymbolsGrid = []; // Holds the final symbol IDs [reelIdx][rowIdx] AFTER spin calculation
+
+            // --- DOM Elements ---
+            const balanceDisplay = document.getElementById('balance');
+            const betAmountDisplay = document.getElementById('bet-amount');
+            const reelsContainerElement = document.getElementById('reels'); // The flex container
+            const spinButton = document.getElementById('spin-button');
+            const betDownButton = document.getElementById('bet-down');
+            const betUpButton = document.getElementById('bet-up');
+            const maxBetButton = document.getElementById('max-bet-button');
+            const notificationArea = document.getElementById('notification-area');
+            const winAmountDisplay = document.getElementById('win-amount');
+            const slotMachineElement = document.getElementById('slot-machine');
+            const particleContainer = document.getElementById('particle-container');
+            const winLineOverlayContainer = document.getElementById('win-line-overlays');
+
+
+            // --- Sound Effect Functions (Placeholders) ---
+            const playSound = (soundId) => {
+                const sound = document.getElementById(soundId);
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.play().catch(e => console.warn("Audio play failed:", e));
+                } else {
+                    console.warn(`Sound element not found: ${soundId}`);
+                }
+            }
+
+            // --- Initialization ---
+            function init() {
+                loadState();
+                updateBalanceDisplay();
+                updateBetDisplay();
+                preloadImages();
+                setupReels(); // Setup initial reel view
+                setupEventListeners();
+            }
+
+            function loadState() {
+                balance = parseInt(localStorage.getItem('hak_slots_balance') || '1000', 10);
+                if (isNaN(balance) || balance < 100) balance = 100;
+                bet = parseInt(localStorage.getItem('hak_slots_bet') || '10', 10);
+                if (isNaN(balance) || balance < 0) balance = 1000;
+                if (isNaN(bet) || bet < 10) bet = 10;
+                bet = Math.min(bet, balance); // Ensure bet isn't higher than balance
+                if (balance < 10 && balance > 0) bet = balance; // Allow betting remaining balance if < 10
+                else if (balance === 0) bet = 0;
+
+                // Sanitize bet against balance
+                if (bet > balance) bet = balance;
+                if (bet < 10 && balance >= 10) bet = 10; // Ensure min bet if possible
+            }
+
+            function saveState() {
+                localStorage.setItem('hak_slots_balance', balance.toString());
+                localStorage.setItem('hak_slots_bet', bet.toString());
+            }
+
+            function preloadImages() {
+                SYMBOLS.forEach(symbolId => {
+                    const img = new Image();
+                    img.src = symbolImages[symbolId];
+                    img.onerror = () => {
+                        console.warn(`Failed to load image: ${symbolId}.`);
+                    };
+                });
+            }
+
+            function setupReels() {
+                reels = []; // Clear refs
+                reelsContainerElement.querySelectorAll('.reel').forEach((reelElement) => {
+                    const symbolsContainer = reelElement.querySelector('.reel-symbols');
+                    symbolsContainer.innerHTML = ''; // Clear previous
+                    reels.push(symbolsContainer); // Store the '.reel-symbols' container
+
+                    const fragment = document.createDocumentFragment();
+                    // Populate only visible symbols initially (or random ones)
+                    for (let i = 0; i < SYMBOLS_PER_REEL; i++) {
+                        fragment.appendChild(createSymbolElement(getRandomSymbol()));
+                    }
+                    symbolsContainer.appendChild(fragment);
+                    symbolsContainer.style.transition = 'none';
+                    symbolsContainer.style.top = '0px'; // Initial position (no buffer needed yet)
+                });
+            }
+
+            // Helper to get current symbol height respecting responsive changes
+            function getSymbolHeight() {
+                // Preferentially get from CSS Custom Property if set, else measure
+                const style = getComputedStyle(document.documentElement);
+                const cssVarHeight = style.getPropertyValue('--symbol-height-px'); // Example name
+                if (cssVarHeight) return parseInt(cssVarHeight, 10);
+
+                // Fallback to measuring an element
+                const firstSymbol = document.querySelector('.symbol');
+                return firstSymbol ? firstSymbol.offsetHeight : 100; // Default if not found
+            }
+
+            function createSymbolElement(symbolId) {
+                const div = document.createElement('div');
+                div.classList.add('symbol');
+                const img = document.createElement('img');
+                img.src = symbolImages[symbolId];
+                img.alt = symbolId;
+                img.setAttribute('data-symbol-id', symbolId); // Store ID for potential updates
+                div.appendChild(img);
+                return div;
+            }
+
+            function setupEventListeners() {
+                spinButton.addEventListener('click', handleSpin);
+                betDownButton.addEventListener('click', handleBetDown);
+                betUpButton.addEventListener('click', handleBetUp);
+                maxBetButton.addEventListener('click', handleMaxBet);
+
+                [spinButton, betDownButton, betUpButton, maxBetButton].forEach(btn => {
+                    btn.addEventListener('click', () => { if (!btn.disabled) playSound('sfx-button-click'); });
+                });
+            }
+
+            // --- UI Updates ---
+            function updateBalanceDisplay() { balanceDisplay.textContent = `${balance.toLocaleString()}€`; }
+            function updateBetDisplay() {
+                betAmountDisplay.textContent = `${bet.toLocaleString()}€`;
+                betDownButton.disabled = (bet <= 10 || balance < 10);
+                betUpButton.disabled = (bet >= balance);
+                maxBetButton.disabled = (bet === balance || balance < 10);
+                spinButton.disabled = (balance < bet || bet === 0 || isSpinning);
+            }
+
+            function toggleControls(disabled) {
+                isSpinning = disabled;
+                spinButton.disabled = disabled || balance < bet || bet === 0; // Also check funds
+                betDownButton.disabled = disabled || bet <= 10 || balance < 10;
+                betUpButton.disabled = disabled || bet >= balance;
+                maxBetButton.disabled = disabled || bet === balance || balance < 10;
+            }
+
+            // --- Game Logic ---
+            function handleBetDown() {
+                const step = 10; // Or make dynamic based on bet size
+                const newBet = Math.max(10, bet - step);
+                if (newBet < bet) { // Ensure it actually changed
+                    bet = newBet;
+                    updateBetDisplay();
+                    saveState();
+                }
+            }
+
+            function handleBetUp() {
+                const step = 10;
+                const newBet = Math.min(balance, bet + step);
+                if (newBet > bet) { // Ensure it actually changed
+                    bet = newBet;
+                    updateBetDisplay();
+                    saveState();
+                }
+            }
+
+            function handleMaxBet() {
+                if (balance >= 10 && bet !== balance) {
+                    bet = balance;
+                    updateBetDisplay();
+                    saveState();
+                }
+            }
+
+            // Generate random but well-distributed reel strips on each load
+            function generateReelStrips() {
+                const strips = [];
+                const stripLength = 32;
+                for (let r = 0; r < REEL_COUNT; r++) {
+                    // Start with a shuffled copy of all symbols (to ensure each appears at least once)
+                    let base = SYMBOLS.slice();
+                    // Fill up to stripLength with random picks, but bias toward lower-payout symbols
+                    while (base.length < stripLength) {
+                        // 60% chance to pick a low symbol, 30% mid, 10% high
+                        let pool;
+                        const roll = Math.random();
+                        if (roll < 0.6) {
+                            pool = ['cherry', 'lemon', 'grapes', 'watermelon', 'orange'];
+                        } else if (roll < 0.9) {
+                            pool = ['bell', 'star', 'moneybag'];
+                        } else {
+                            pool = ['seven', 'diamond'];
+                        }
+                        base.push(pool[Math.floor(Math.random() * pool.length)]);
+                    }
+                    // Shuffle the strip for randomness
+                    for (let i = base.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [base[i], base[j]] = [base[j], base[i]];
+                    }
+                    strips.push(base.slice(0, stripLength));
+                }
+                return strips;
+            }
+            const REEL_STRIPS = generateReelStrips();
+
+            // Ensure REEL_STRIPS has the correct number of reels
+            if (REEL_STRIPS.length !== REEL_COUNT) {
+                console.error("Mismatch between REEL_COUNT and REEL_STRIPS definition!");
+                // Handle error appropriately, maybe default to random or stop execution
+            }
+
+            function getRandomSymbol() {
+                return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+            }
+
+
+
+            function spinReel(reelSymbolsContainer, reelIndex, finalReelSymbols) {
+                return new Promise(resolve => {
+                    const symbolH = getSymbolHeight();
+                    const totalReelHeight = (SYMBOL_BUFFER_COUNT + SYMBOLS_PER_REEL) * symbolH;
+                    const finalTopPosition = -(SYMBOL_BUFFER_COUNT * symbolH); // Position to show final symbols
+                    const reelSpinDuration = SPIN_DURATION + reelIndex * SPIN_DELAY_PER_REEL;
+
+                    // Build the full strip: buffer + final symbols
+                    const fragment = document.createDocumentFragment();
+                    for (let i = 0; i < SYMBOL_BUFFER_COUNT; i++) {
+                        fragment.appendChild(createSymbolElement(getRandomSymbol()));
+                    }
+                    finalReelSymbols.forEach(symbolId => { // Use the predetermined final symbols
+                        fragment.appendChild(createSymbolElement(symbolId));
+                    });
+
+                    // Replace content and reset position INSTANTLY before animation
+                    reelSymbolsContainer.style.transition = 'none';
+                    reelSymbolsContainer.innerHTML = '';
+                    reelSymbolsContainer.appendChild(fragment);
+                    reelSymbolsContainer.style.top = '0px'; // Start at the top of the buffer
+
+                    // Force reflow/repaint is crucial after style changes before transition
+                    void reelSymbolsContainer.offsetWidth;
+
+                    // Apply transition and final position
+                    reelSymbolsContainer.style.transition = `top ${reelSpinDuration / 1000}s cubic-bezier(0.25, 1, 0.5, 1)`; // Smoother roll, less bounce
+                    // Alternatively: cubic-bezier(0.68, -0.55, 0.27, 1.55) for rubbery end bounce
+
+                    reelSymbolsContainer.style.top = `${finalTopPosition}px`;
+
+                    // Resolve after animation + sound delay
+                    setTimeout(() => {
+                        playSound('sfx-reel-stop');
+                        // Optional cleanup: remove buffer symbols after animation?
+                        // Can be complex, might not be necessary unless performance is an issue.
+                        resolve();
+                    }, reelSpinDuration * 0.9);
+                });
+            }
+
+            // --- REPLACEMENT for handleSpin ---
+            async function handleSpin() {
+                if (isSpinning || balance < bet || bet === 0) return;
+
+                toggleControls(true);
+                playSound('sfx-spin-start');
+                hideNotification();
+                clearWinHighlights();
+                clearParticles();
+                clearWinLines();
+
+                balance -= bet;
+                updateBalanceDisplay();
+                saveState(); // Save after deducting bet
+
+                // 1. Determine final symbols based on reel strips
+                finalSymbolsGrid = []; // Reset the grid that holds the final state [reelIdx][rowIdx]
+                const stopIndices = []; // Store the chosen stop index for each reel
+
+                for (let reelIndex = 0; reelIndex < REEL_COUNT; reelIndex++) {
+                    const strip = REEL_STRIPS[reelIndex];
+                    if (!strip || strip.length === 0) {
+                        console.error(`Reel strip ${reelIndex} is invalid or empty!`);
+                        // Fallback or error handling needed here
+                        // For now, let's use random as a fallback for this reel
+                        finalSymbolsGrid[reelIndex] = [];
+                        for (let s = 0; s < SYMBOLS_PER_REEL; s++) {
+                            finalSymbolsGrid[reelIndex].push(getRandomSymbol());
+                        }
+                        stopIndices.push(-1); // Indicate invalid stop
+                        continue; // Move to the next reel
+                    }
+
+                    const stopIndex = Math.floor(Math.random() * strip.length);
+                    stopIndices.push(stopIndex); // Store for reference if needed
+
+                    const symbolsToShow = [];
+                    for (let i = 0; i < SYMBOLS_PER_REEL; i++) {
+                        // Calculate the index on the strip for the visible symbol
+                        // Assuming SYMBOLS_PER_REEL = 3:
+                        // i = 0 -> top row -> index before stopIndex
+                        // i = 1 -> middle row -> index at stopIndex
+                        // i = 2 -> bottom row -> index after stopIndex
+                        const offset = i - Math.floor(SYMBOLS_PER_REEL / 2); // -1, 0, 1 for 3 symbols
+                        const symbolIndex = (stopIndex + offset + strip.length) % strip.length; // Handles wrap-around
+                        symbolsToShow.push(strip[symbolIndex]);
+                    }
+                    finalSymbolsGrid[reelIndex] = symbolsToShow;
+                }
+
+                // 2. Start animations - spinReel function now receives the pre-determined symbols
+                const spinPromises = reels.map((reelSymbolsContainer, reelIndex) => {
+                    // Pass the determined final symbols for THIS reel to the animation function
+                    return spinReel(reelSymbolsContainer, reelIndex, finalSymbolsGrid[reelIndex]);
+                });
+
+                await Promise.all(spinPromises);
+
+                // 3. Check wins using the finalSymbolsGrid determined by the strips
+                const result = checkWin(); // checkWin remains the same, reads finalSymbolsGrid
+
+                if (result.totalPayout > 0) {
+                    handleWin(result); // Handle win display and payout logic
+                    saveState(); // Save again after win is added
+                } else {
+                    // No win or after win animation is complete
+                    toggleControls(false); // Re-enable controls
+                }
+            }
+
+            function checkWin() {
+                let totalPayout = 0;
+                const winningLineDetails = []; // Store { lineDef, symbol, count, payout, gridIndices }
+
+                // Iterate through each defined winning line
+                WINNING_LINES.forEach(lineDef => {
+                    const lineIndices = lineDef.indices;
+                    // Get the symbols from our finalSymbolsGrid based on the line's indices
+                    // Need to map flat grid index (0-14) to [reel][row]
+                    const getSymbolAt = (gridIndex) => {
+                        const reelIdx = Math.floor(gridIndex / SYMBOLS_PER_REEL);
+                        const rowIdx = gridIndex % SYMBOLS_PER_REEL;
+                        return finalSymbolsGrid[reelIdx] ? finalSymbolsGrid[reelIdx][rowIdx] : null;
+                    };
+
+                    const firstSymbol = getSymbolAt(lineIndices[0]);
+                    if (!firstSymbol) return; // Skip if line starts empty
+
+                    let matchCount = 1;
+                    const matchedGridIndices = [lineIndices[0]]; // Store the grid indices that match
+
+                    for (let i = 1; i < lineIndices.length; i++) {
+                        if (getSymbolAt(lineIndices[i]) === firstSymbol) {
+                            matchCount++;
+                            matchedGridIndices.push(lineIndices[i]);
+                        } else {
+                            break; // Stop counting on first mismatch
+                        }
+                    }
+
+                    // Check payout table
+                    if (PAYOUT_TABLE[firstSymbol] && PAYOUT_TABLE[firstSymbol][matchCount]) {
+                        const payoutMultiplier = PAYOUT_TABLE[firstSymbol][matchCount];
+                        const linePayout = payoutMultiplier * bet;
+                        totalPayout += linePayout;
+                        winningLineDetails.push({
+                            lineDef: lineDef,
+                            symbol: firstSymbol,
+                            count: matchCount,
+                            payout: linePayout,
+                            gridIndices: matchedGridIndices // Pass the grid indices
+                        });
+                    }
+                });
+
+                return { totalPayout, winningLineDetails };
+            }
+
+            function handleWin({ totalPayout, winningLineDetails }) {
+                balance += totalPayout; // Add payout to balance
+                updateBalanceDisplay(); // Update header display immediately
+
+                showNotification(`+${totalPayout.toLocaleString()}!`);
+                triggerParticles();
+                highlightWinningSymbols(winningLineDetails); // Highlight symbols involved
+                drawWinningLines(winningLineDetails);      // Draw lines over wins
+
+                // Play appropriate win sound
+                playSound(totalPayout >= bet * 100 ? 'sfx-win-big' : 'sfx-win-small');
+
+                toggleControls(false);
+            }
+
+            function highlightWinningSymbols(winningLineDetails) {
+                clearWinHighlights();
+                const allWinningGridIndices = new Set();
+                winningLineDetails.forEach(detail => {
+                    detail.gridIndices.forEach(idx => allWinningGridIndices.add(idx));
+                });
+
+                allWinningGridIndices.forEach(gridIndex => {
+                    const reelIdx = Math.floor(gridIndex / SYMBOLS_PER_REEL);
+                    const rowIdx = gridIndex % SYMBOLS_PER_REEL;
+                    const reelSymbolsContainer = reels[reelIdx];
+                    if (reelSymbolsContainer) {
+                        // Symbols are added dynamically, final state is last SYMBOLS_PER_REEL
+                        const visibleSymbols = Array.from(reelSymbolsContainer.children).slice(-SYMBOLS_PER_REEL);
+                        const targetSymbolElement = visibleSymbols[rowIdx];
+                        if (targetSymbolElement) {
+                            targetSymbolElement.classList.add('winning');
+                        } else {
+                            console.error(`Cannot find symbol element at reel ${reelIdx}, row ${rowIdx} (grid ${gridIndex})`);
+                        }
+                    }
+                });
+            }
+
+            function clearWinHighlights() {
+                document.querySelectorAll('.symbol.winning').forEach(el => el.classList.remove('winning'));
+            }
+
+            function drawWinningLines(winningLineDetails) {
+                clearWinLines();
+                const symbolH = getSymbolHeight();
+                const reelsAreaRect = reelsContainerElement.getBoundingClientRect(); // Use reels container for relative positioning
+
+                winningLineDetails.forEach(detail => {
+                    // We need at least 2 points (start and end of the match) to draw a line segment
+                    if (!detail.gridIndices || detail.gridIndices.length < 2) return;
+
+                    // Get center coordinates relative to the winLineOverlayContainer
+                    const getSymbolCenter = (gridIndex) => {
+                        const reelIdx = Math.floor(gridIndex / SYMBOLS_PER_REEL);
+                        const rowIdx = gridIndex % SYMBOLS_PER_REEL;
+                        const reelSymbolsContainer = reels[reelIdx];
+                        if (!reelSymbolsContainer) return null;
+
+                        // Ensure we are selecting from the VISIBLE symbols after spin completes
+                        const visibleSymbols = Array.from(reelSymbolsContainer.children).slice(-SYMBOLS_PER_REEL);
+                        const symbolElem = visibleSymbols[rowIdx];
+                        if (!symbolElem) return null;
+
+                        const symbolRect = symbolElem.getBoundingClientRect();
+                        const parentRect = winLineOverlayContainer.getBoundingClientRect();
+
+                        // Calculate center relative to the overlay container
+                        return {
+                            x: symbolRect.left + symbolRect.width / 2 - parentRect.left,
+                            y: symbolRect.top + symbolRect.height / 2 - parentRect.top
+                        };
+                    };
+
+                    // Get start and end points of the winning sequence on the line
+                    const startPoint = getSymbolCenter(detail.gridIndices[0]);
+                    // Use the last index of the actual match (detail.count - 1)
+                    const endPoint = getSymbolCenter(detail.gridIndices[detail.count - 1]);
+
+                    if (!startPoint || !endPoint) {
+                        console.error("Could not get symbol centers for line drawing.", detail);
+                        return; // Skip drawing if points are invalid
+                    }
+
+                    const line = document.createElement('div');
+                    line.classList.add('win-line');
+
+                    // Calculate line properties
+                    const dx = endPoint.x - startPoint.x;
+                    const dy = endPoint.y - startPoint.y;
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    const angleRad = Math.atan2(dy, dx);
+                    const angleDeg = angleRad * (180 / Math.PI);
+
+                    // --- Style application ---
+                    line.style.left = `${startPoint.x}px`;
+                    // Adjust top position to center the line vertically (line height is 10px)
+                    line.style.top = `${startPoint.y - 5}px`;
+                    line.style.width = `${length}px`;
+                    line.style.transformOrigin = 'left center'; // Ensure CSS knows origin
+
+                    // 1. Set initial state (invisible, scaled down, rotated)
+                    line.style.opacity = '0';
+                    line.style.transform = `rotate(${angleDeg}deg) scaleX(0)`;
+
+                    winLineOverlayContainer.appendChild(line);
+
+                    // 2. Trigger transition in the next frame
+                    // Use requestAnimationFrame to ensure the initial styles are applied before changing them
+                    requestAnimationFrame(() => {
+                        // Apply the final state (visible, full scale, same rotation)
+                        // The CSS transition on `.win-line` will animate this change.
+                        line.style.opacity = '1';
+                        line.style.transform = `rotate(${angleDeg}deg) scaleX(1)`;
+                    });
+                });
+            }
+
+            function clearWinLines() {
+                winLineOverlayContainer.innerHTML = '';
+            }
+
+
+            function showNotification(message) {
+                winAmountDisplay.textContent = message;
+                notificationArea.classList.add('show');
+                setTimeout(() => {
+                    hideNotification();
+                }, 1500);
+            }
+
+            function hideNotification() {
+                notificationArea.classList.remove('show');
+            }
+
+            function triggerParticles() {
+                clearParticles(); // Remove old ones first
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    if (Math.random() > 0.7) particle.classList.add('shard'); // Some shards
+
+                    // Random trajectory and animation properties
+                    const angle = Math.random() * Math.PI * 2;
+                    const velocity = 100 + Math.random() * 200; // Distance
+                    const gravity = 0.5 + Math.random() * 0.5; // Downward pull effect
+                    const duration = 0.8 + Math.random() * 0.7; // seconds
+                    const delay = Math.random() * 0.2; // Stagger start time
+
+                    particle.style.setProperty('--angle', angle);
+                    particle.style.setProperty('--velocity', velocity);
+                    particle.style.setProperty('--gravity', gravity);
+
+                    // Use JS Animation API for better control (or keyframes if simpler)
+                    particle.animate([
+                        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                        { transform: `translate(${Math.cos(angle) * velocity}px, ${Math.sin(angle) * velocity + (0.5 * gravity * 1000 * duration * duration / 1000)}px) scale(0)`, opacity: 0 } // Simplified gravity effect
+                    ], {
+                        duration: duration * 1000,
+                        delay: delay * 1000,
+                        easing: 'cubic-bezier(0.2, 0.8, 0.7, 1)', // Ease out
+                        fill: 'forwards' // Keep final state
+                    });
+
+                    particleContainer.appendChild(particle);
+
+                    // Remove particle after animation + buffer
+                    setTimeout(() => particle.remove(), (duration + delay + 0.1) * 1000);
+                }
+            }
+
+            function clearParticles() {
+                particleContainer.innerHTML = '';
+            }
+
+            // --- Start the machine ---
+            init();
+        });
+    </script>
+</body>
+
+</html>
