@@ -701,7 +701,6 @@
 
     <audio id="bg-music" src="assets/sounds/bg-music.mp3" preload="auto"></audio>
     <audio id="sfx-spin-start" src="assets/sounds/spin-start.mp3" preload="auto"></audio>
-    <audio id="sfx-reel-stop" src="assets/sounds/spin-start.mp3" preload="auto"></audio>
     <audio id="sfx-win-small" src="assets/sounds/win-small.mp3" preload="auto"></audio>
     <audio id="sfx-win-big" src="assets/sounds/win-big.mp3" preload="auto"></audio>
     <audio id="sfx-button-click" src="assets/sounds/button-click.mp3" preload="auto"></audio>
@@ -738,7 +737,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             // --- CONFIGURATION --- 
-            const SYMBOLS = ["cherry", "lemon", "grapes", "watermelon", "orange", "diamond", "bell", "star", "moneybag", "seven"]; // Replaced skull with seven
+            const SYMBOLS = ["cherry", "lemon", "grapes", "watermelon", "orange", "diamond", "bell", "star", "moneybag", "seven"];
             const REEL_COUNT = 5;
             const SYMBOLS_PER_REEL = 3; // Visible symbols
             const SPIN_DURATION = 1000; // ms base duration
@@ -1030,6 +1029,12 @@
 
             function setupEventListeners() {
                 spinButton.addEventListener('click', handleSpin);
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && !spinButton.disabled) {
+                        e.preventDefault();
+                        handleSpin();
+                    }
+                });
                 betDownButton.addEventListener('click', handleBetDown);
                 betUpButton.addEventListener('click', handleBetUp);
                 maxBetButton.addEventListener('click', handleMaxBet);
@@ -1161,11 +1166,8 @@
 
                     reelSymbolsContainer.style.top = `${finalTopPosition}px`;
 
-                    // Resolve after animation + sound delay
+                    // Resolve after animation
                     setTimeout(() => {
-                        playSound('sfx-reel-stop');
-                        // Optional cleanup: remove buffer symbols after animation?
-                        // Can be complex, might not be necessary unless performance is an issue.
                         resolve();
                     }, reelSpinDuration * 0.9);
                 });
@@ -1301,7 +1303,9 @@
                 // Play appropriate win sound
                 playSound(totalPayout >= bet * 100 ? 'sfx-win-big' : 'sfx-win-small');
 
-                toggleControls(false);
+                setTimeout(() => {
+                    toggleControls(false);
+                }, 750);
             }
 
             function highlightWinningSymbols(winningLineDetails) {
