@@ -53,6 +53,19 @@
             color: #eee;
         }
 
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            /* display: none; <- Crashes Chrome on hover */
+            -webkit-appearance: none;
+            margin: 0;
+            /* <-- Apparently some margin are still there even though it's hidden */
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+            /* Firefox */
+        }
+
         /* --- Slot Machine Container --- */
         #slot-machine {
             width: 90%;
@@ -86,7 +99,7 @@
             box-shadow:
                 0 6px 18px 0 rgba(255, 215, 0, 0.25),
                 0 0 24px 4px rgba(255, 215, 0, 0.18),
-                0 2px 8px 0 rgba(0,0,0,0.25);
+                0 2px 8px 0 rgba(0, 0, 0, 0.25);
             padding: 18px 0 12px 0;
             position: relative;
         }
@@ -311,6 +324,16 @@
             color: #331a00;
             font-size: 2rem;
             padding: 8px 15px;
+        }
+
+        #bet-amount {
+            background: inherit;
+            border: none;
+            color: inherit;
+            font: inherit;
+            text-align: center;
+            width: 60px;
+            outline: none;
         }
 
         #bet-amount-display {
@@ -686,7 +709,7 @@
         <div id="controls">
             <div id="bet-controls">
                 <button id="bet-down">-</button>
-                <span id="bet-amount-display">BET: <span id="bet-amount">10</span></span>
+                <span id="bet-amount-display">BET: <input id="bet-amount" type="number" value="10" min="10"></span>
                 <button id="bet-up">+</button>
             </div>
             <button id="spin-button">SPIN</button>
@@ -1042,12 +1065,21 @@
                 [spinButton, betDownButton, betUpButton, maxBetButton].forEach(btn => {
                     btn.addEventListener('click', () => { if (!btn.disabled) playSound('sfx-button-click'); });
                 });
+
+                betAmountDisplay.addEventListener('change', function () {
+                    let newBet = parseInt(betAmountDisplay.value, 10) || 10;
+                    if (newBet < 10) newBet = 10;
+                    if (newBet > balance) newBet = balance;
+                    bet = newBet;
+                    updateBetDisplay();
+                    saveState();
+                });
             }
 
             // --- UI Updates ---
             function updateBalanceDisplay() { balanceDisplay.textContent = `${balance.toLocaleString()}€`; }
             function updateBetDisplay() {
-                betAmountDisplay.textContent = `${bet.toLocaleString()}€`;
+                betAmountDisplay.value = bet;
                 betDownButton.disabled = (bet <= 10 || balance < 10);
                 betUpButton.disabled = (bet >= balance);
                 maxBetButton.disabled = (bet === balance || balance < 10);
